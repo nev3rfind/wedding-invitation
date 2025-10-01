@@ -1,8 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import InvitePage from '../views/InvitePage.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
+import SetupPage from '../views/SetupPage.vue'
 
 const routes = [
+  {
+    path: '/',
+    name: 'setup',
+    component: SetupPage
+  },
   {
     path: '/invite/:inviteGuid',
     name: 'invite',
@@ -14,8 +20,8 @@ const routes = [
     component: AdminDashboard
   },
   {
-    path: '/:pathMatch(.*)*',
-    redirect: '/admin'
+    path: '/setup',
+    redirect: '/'
   }
 ]
 
