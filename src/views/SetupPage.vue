@@ -8,29 +8,30 @@
 
         <div class="space-y-4 mb-8">
           <p class="text-nimble">
-            This setup will create and populate the database tables needed for the wedding invitation system.
+            Welcome! Let's set up your wedding invitation database in 3 simple steps.
           </p>
 
-          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <p class="font-semibold text-yellow-800">Important:</p>
-            <p class="text-yellow-700">
-              Tables must be created first via Supabase SQL Editor. This tool will populate the data.
+          <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+            <p class="font-semibold text-blue-800 mb-2">📋 Step 1: Start Database (Required First)</p>
+            <p class="text-blue-700 mb-2">
+              In Bolt.new chat, ask: <strong>"Please run the SQL from database/schema.sql to create the database tables"</strong>
+            </p>
+            <p class="text-blue-700 text-sm">
+              Or copy the SQL schema below and paste it to Bolt.
             </p>
           </div>
 
-          <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-            <p class="font-semibold text-blue-800">Step 1: Create Tables</p>
-            <ol class="list-decimal list-inside text-blue-700 space-y-2 mt-2">
-              <li>Go to your Supabase Dashboard → SQL Editor</li>
-              <li>Copy the contents from <code class="bg-blue-100 px-2 py-1 rounded">database/schema.sql</code></li>
-              <li>Paste and run the SQL</li>
-            </ol>
+          <div class="bg-green-50 border-l-4 border-green-400 p-4">
+            <p class="font-semibold text-green-800 mb-2">✅ Step 2: Populate Data</p>
+            <p class="text-green-700">
+              Once tables are created, click the button below to populate with wedding data, test guests, and settings.
+            </p>
           </div>
 
-          <div class="bg-green-50 border-l-4 border-green-400 p-4">
-            <p class="font-semibold text-green-800">Step 2: Populate Data</p>
-            <p class="text-green-700 mt-2">
-              Once tables are created, click the button below to populate with initial data.
+          <div class="bg-purple-50 border-l-4 border-purple-400 p-4">
+            <p class="font-semibold text-purple-800 mb-2">🎉 Step 3: Test Your Invites</p>
+            <p class="text-purple-700">
+              After setup completes, test invite links will appear below. Click them to see your beautiful wedding invitation!
             </p>
           </div>
         </div>
@@ -38,9 +39,9 @@
         <button
           @click="runSetup"
           :disabled="isRunning"
-          class="w-full px-6 py-4 bg-spring-poppy text-ivory-crepe rounded-lg font-semibold text-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full px-6 py-4 bg-spring-poppy text-ivory-crepe rounded-lg font-semibold text-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
         >
-          {{ isRunning ? 'Setting up...' : 'Populate Database' }}
+          {{ isRunning ? 'Populating database...' : '▶ Populate Database (Step 2)' }}
         </button>
       </div>
 

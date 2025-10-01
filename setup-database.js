@@ -4,7 +4,7 @@ import { dirname } from 'path'
 import fs from 'fs'
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL
-const supabaseKey = process.env.VITE_SUPABASE_SUPABASE_ANON_KEY
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Missing Supabase environment variables')
