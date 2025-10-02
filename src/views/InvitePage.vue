@@ -1,130 +1,117 @@
 <template>
-  <main class="overflow-hidden bg-background">
-    <section id="home" class="relative">
-      <div class="absolute inset-0 max-md:hidden top-[400px] -z-10 h-[400px] w-full bg-transparent bg-[linear-gradient(to_right,#57534e_1px,transparent_1px),linear-gradient(to_bottom,#57534e_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] dark:bg-[linear-gradient(to_right,#a8a29e_1px,transparent_1px),linear-gradient(to_bottom,#a8a29e_1px,transparent_1px)]"></div>
+  <main class="min-h-screen overflow-hidden relative">
+    <div
+      ref="parallaxBg"
+      class="fixed inset-0 -z-10 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50"
+      :style="parallaxStyle"
+    >
+      <div class="absolute inset-0 opacity-30" style="background-image: url('/assets/hero-background-watercolor.png'); background-size: cover; background-position: center;"></div>
+    </div>
 
-      <div class="flex flex-col items-center justify-center px-6 text-center">
-        <div class="mb-6 mt-10 sm:justify-center md:mb-4 md:mt-40">
-          <div v-if="guestData" class="relative flex items-center rounded-full border bg-popover px-3 py-1 text-xs text-primary/60">
-            <TypingGreeting :guest-call="guestData.guest_call" />
+    <section id="home" class="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 py-12">
+      <div class="max-w-4xl w-full mx-auto text-center space-y-8 animate-fade-in">
+        <div class="mb-8 animate-slide-up" style="animation-delay: 0.1s">
+          <div class="text-sm sm:text-base text-green-600 font-semibold mb-2 uppercase tracking-wide">
+            Save the Date
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight mb-4 animate-slide-up" style="animation-delay: 0.2s">
+            <span class="text-gray-800">Donatas & </span>
+            <span class="text-red-500">Trang</span>
+            <span class="text-gray-800"> Wedding</span>
+          </h1>
+
+          <div class="text-5xl sm:text-6xl md:text-8xl font-extrabold text-gray-900 mb-6 animate-slide-up" style="animation-delay: 0.3s">
+            5 April 2026
           </div>
         </div>
 
-        <div class="mx-auto max-w-5xl">
-          <div class="border-text-red-500 relative mx-auto h-full bg-background border py-12 p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)]">
-            <h1 class="flex flex-col text-center text-5xl font-semibold leading-none tracking-tight md:flex-col md:text-8xl lg:flex-row lg:text-8xl">
-              <Plus
-                :stroke-width="4"
-                class="text-red-500 absolute -left-5 -top-5 h-10 w-10"
-              />
-              <Plus
-                :stroke-width="4"
-                class="text-red-500 absolute -bottom-5 -left-5 h-10 w-10"
-              />
-              <Plus
-                :stroke-width="4"
-                class="text-red-500 absolute -right-5 -top-5 h-10 w-10"
-              />
-              <Plus
-                :stroke-width="4"
-                class="text-red-500 absolute -bottom-5 -right-5 h-10 w-10"
-              />
-              <span>
-                {{ t('hero.title') }} <span class="text-red-500">{{ t('hero.date') }}</span>
-              </span>
-            </h1>
-            <div class="flex items-center mt-4 justify-center gap-1">
-              <span class="relative flex h-3 w-3 items-center justify-center">
-                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
-                <span class="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
-              </span>
-              <p class="text-xs text-green-500">{{ t('hero.location') }}</p>
-            </div>
-          </div>
+        <div class="text-xl sm:text-2xl md:text-3xl mb-8 animate-slide-up" style="animation-delay: 0.4s">
+          <TypewriterEffect
+            :text="['Labas', 'Hello', 'Xin Chào']"
+            :speed="100"
+            :wait-time="1500"
+            :delete-speed="50"
+            class="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+          />
+        </div>
 
-          <h2 ref="invitationText" class="mt-8 text-2xl md:text-2xl">
-            {{ currentInvitationText }}
-          </h2>
+        <p ref="invitationText" class="text-lg sm:text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-10 animate-slide-up font-serif italic" style="animation-delay: 0.5s">
+          {{ currentInvitationText || 'We warmly invite you to our wedding in the land of lotus lakes and golden paddies' }}
+        </p>
 
+        <div class="animate-slide-up" style="animation-delay: 0.6s">
           <Countdown v-if="weddingDate" :wedding-date="weddingDate" />
+        </div>
 
-          <div class="flex flex-col md:flex-row items-center justify-center gap-2 mt-6">
-            <ShineBorder
-              v-if="rsvpState === 'initial'"
-              :border-width="3"
-              custom-class="border cursor-pointer h-auto w-auto p-2 bg-white/5 backdrop-blur-md dark:bg-black/5"
-              :color="['#FF007F', '#39FF14', '#00FFFF']"
-            >
-              <ConfettiButton
-                class="w-full rounded-xl"
-                @click="onAccept"
-              >
-                {{ t('rsvp.accept') || "I'll come" }}
-              </ConfettiButton>
-            </ShineBorder>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 animate-slide-up" style="animation-delay: 0.7s">
+          <button
+            v-if="rsvpState === 'initial'"
+            @click="onAccept"
+            class="px-8 py-4 bg-red-500 hover:bg-red-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 min-w-[200px]"
+          >
+            {{ t('rsvp.accept') || "I'll come" }}
+          </button>
 
-            <Button
-              v-if="rsvpState === 'initial'"
-              class="rounded-xl"
-              variant="outline"
-              @click="onReject"
-            >
-              {{ t('rsvp.reject') || "Can't make it" }}
-            </Button>
+          <button
+            v-if="rsvpState === 'initial'"
+            @click="onReject"
+            class="px-8 py-4 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 min-w-[200px]"
+          >
+            {{ t('rsvp.reject') || "Unfortunately no" }}
+          </button>
 
-            <ShineBorder
-              v-if="rsvpState === 'morphed'"
-              :border-width="3"
-              custom-class="border cursor-pointer h-auto w-auto p-2 bg-white/5 backdrop-blur-md dark:bg-black/5"
-              :color="['#FF007F', '#39FF14', '#00FFFF']"
-            >
-              <Button
-                class="w-full rounded-xl"
-                @click="onOpenModal"
-              >
-                {{ t('rsvp.satisfy_curiosity') || "Satisfy my curiosity" }}
-              </Button>
-            </ShineBorder>
+          <button
+            v-if="rsvpState === 'morphed'"
+            @click="onOpenModal"
+            class="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          >
+            {{ t('rsvp.satisfy_curiosity') || "Tell us more" }}
+          </button>
 
-            <Button
-              v-if="rsvpState === 'answered'"
-              class="rounded-xl"
-              @click="onRevealAddress"
-            >
-              {{ t('rsvp.reveal_address') || "Show venue address" }}
-            </Button>
-          </div>
+          <button
+            v-if="rsvpState === 'answered'"
+            @click="onRevealAddress"
+            class="px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          >
+            {{ t('rsvp.reveal_address') || "Show venue address" }}
+          </button>
+        </div>
 
+        <div v-if="showAddress" class="mt-6 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl animate-slide-up">
           <AddressReveal
             :is-visible="showAddress"
             :venue-address="venueAddress"
           />
+        </div>
 
-          <FooterLinks
-            :vietnam-link-date="vietnamLinkDate"
-            :tickets-link-date="ticketsLinkDate"
-            :fly-from-country="flyFromCountry"
-            @vietnam-info="onVietnamInfo"
-            @tickets-info="onTicketsInfo"
-          />
+        <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style="animation-delay: 0.8s">
+          <GetStartedButton
+            @click="onVietnamInfo"
+            class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white min-w-[250px]"
+          >
+            What is waiting for me in Vietnam?
+          </GetStartedButton>
+
+          <GetStartedButton
+            v-if="flyFromCountry"
+            @click="onTicketsInfo"
+            variant="outline"
+            class="min-w-[250px]"
+          >
+            Flying from {{ flyFromCountry }}
+          </GetStartedButton>
         </div>
       </div>
-
-      <AnimatedCanvas canvas-id="canvas" />
     </section>
 
-    <div class="absolute inset-0 max-md:hidden -z-20">
-      <RotatingPortraits
-        v-if="portraits.length > 0"
-        :portraits="portraits"
-        class="absolute right-0 top-20 w-full md:w-1/3 lg:w-1/4"
-      />
-    </div>
-
-    <QuestionsModal
-      :is-open="showModal"
+    <DialogModal
+      v-model="showModal"
+      title="RSVP Details"
+      description="Please share a few details with us so we can make your day special!"
+      submit-text="Send RSVP"
+      @save="onSubmitForm"
       @close="onCloseModal"
-      @submit="onSubmitForm"
     />
   </main>
 </template>
@@ -135,19 +122,14 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { gsap } from 'gsap'
 import { TextPlugin } from 'gsap/TextPlugin'
-import { Plus } from 'lucide-vue-next'
-import TypingGreeting from '../components/TypingGreeting.vue'
-import RotatingPortraits from '../components/RotatingPortraits.vue'
+import TypewriterEffect from '../components/ui/TypewriterEffect.vue'
 import Countdown from '../components/Countdown.vue'
-import QuestionsModal from '../components/QuestionsModal.vue'
-import FooterLinks from '../components/FooterLinks.vue'
 import AddressReveal from '../components/AddressReveal.vue'
-import Button from '../components/ui/Button.vue'
-import ShineBorder from '../components/ui/ShineBorder.vue'
-import ConfettiButton from '../components/ui/ConfettiButton.vue'
-import AnimatedCanvas from '../components/ui/AnimatedCanvas.vue'
+import GetStartedButton from '../components/ui/GetStartedButton.vue'
+import DialogModal from '../components/ui/DialogModal.vue'
 import { api } from '../services/api'
 import { tracker } from '../services/tracker'
+import { useFireworks } from '../composables/useFireworks'
 
 gsap.registerPlugin(TextPlugin)
 
@@ -160,10 +142,12 @@ const media = ref({})
 const rsvpState = ref('initial')
 const showModal = ref(false)
 const showAddress = ref(false)
-const heroSection = ref(null)
-const heroTitle = ref(null)
 const invitationText = ref(null)
 const currentInvitationText = ref('')
+const parallaxBg = ref(null)
+const scrollY = ref(0)
+
+const { triggerFireworks } = useFireworks()
 
 const weddingDate = computed(() => settings.value['wedding.start_datetime'])
 const venueAddress = computed(() => settings.value['wedding.venue_address'] || 'Lotus Garden, West Lake, Hanoi, Vietnam')
@@ -208,19 +192,28 @@ const loadInviteData = async () => {
   }
 }
 
+const parallaxStyle = computed(() => ({
+  transform: `translateY(${scrollY.value * 0.5}px)`
+}))
+
+const handleScroll = () => {
+  scrollY.value = window.scrollY
+}
+
 const onAccept = async () => {
   try {
+    triggerFireworks()
     await api.updateRsvp(route.params.inviteGuid, 'accept')
     await new Promise(resolve => setTimeout(resolve, 300))
 
     if (invitationText.value) {
       gsap.to(invitationText.value, {
         duration: 0.8,
-        text: t('hero.after_accept'),
+        text: t('hero.after_accept') || 'Thank you! We can\'t wait to celebrate with you!',
         ease: 'none'
       })
     }
-    currentInvitationText.value = t('hero.after_accept')
+    currentInvitationText.value = t('hero.after_accept') || 'Thank you! We can\'t wait to celebrate with you!'
     rsvpState.value = 'morphed'
   } catch (error) {
     console.error('Failed to update RSVP:', error)
@@ -252,11 +245,11 @@ const onSubmitForm = async (formData) => {
     if (invitationText.value) {
       gsap.to(invitationText.value, {
         duration: 0.8,
-        text: t('hero.after_questions'),
+        text: t('hero.after_questions') || 'Perfect! All details saved.',
         ease: 'none'
       })
     }
-    currentInvitationText.value = t('hero.after_questions')
+    currentInvitationText.value = t('hero.after_questions') || 'Perfect! All details saved.'
 
     rsvpState.value = 'answered'
   } catch (error) {
@@ -285,22 +278,42 @@ const onTicketsInfo = () => {
 onMounted(async () => {
   tracker.init(route.params.inviteGuid)
   await loadInviteData()
+  window.addEventListener('scroll', handleScroll)
 })
 
 onUnmounted(() => {
   tracker.destroy()
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
 <style scoped>
-@keyframes ping {
-  75%, 100% {
-    transform: scale(2);
+@keyframes fade-in {
+  from {
     opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
-.animate-ping {
-  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out forwards;
+  opacity: 0;
 }
 </style>

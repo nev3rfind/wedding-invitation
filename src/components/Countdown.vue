@@ -4,15 +4,15 @@
       <div
         v-for="unit in timeUnits"
         :key="unit.label"
-        class="countdown-tile bg-ivory-crepe rounded-xl-soft p-4 sm:p-6 min-w-[80px] sm:min-w-[100px] text-center shadow-md"
+        class="countdown-tile bg-gradient-to-br from-pink-50 to-blue-50 rounded-2xl p-4 sm:p-6 min-w-[90px] sm:min-w-[110px] text-center shadow-lg hover:shadow-xl transition-all duration-300"
       >
         <div
-          class="countdown-number text-3xl sm:text-4xl md:text-5xl font-bold text-spring-poppy"
+          class="countdown-number text-4xl sm:text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-red-500 to-pink-600 bg-clip-text text-transparent"
           :aria-label="`${unit.value} ${unit.label}`"
         >
-          {{ unit.value }}
+          {{ String(unit.value).padStart(2, '0') }}
         </div>
-        <div class="countdown-label text-xs sm:text-sm text-nimble mt-2 uppercase tracking-wide">
+        <div class="countdown-label text-xs sm:text-sm text-gray-600 mt-2 uppercase tracking-wider font-medium">
           {{ unit.label }}
         </div>
       </div>
