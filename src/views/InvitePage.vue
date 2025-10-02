@@ -1,66 +1,124 @@
 <template>
-  <div class="invite-page min-h-screen bg-ivory-crepe">
-    <div
-      ref="heroSection"
-      class="hero-section min-h-screen relative overflow-hidden"
-      :style="heroBackgroundStyle"
-    >
-      <div class="hero-overlay absolute inset-0 bg-gradient-to-b from-ivory-crepe/95 to-english-pear/60"></div>
+  <main class="overflow-hidden bg-background">
+    <section id="home" class="relative">
+      <div class="absolute inset-0 max-md:hidden top-[400px] -z-10 h-[400px] w-full bg-transparent bg-[linear-gradient(to_right,#57534e_1px,transparent_1px),linear-gradient(to_bottom,#57534e_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] dark:bg-[linear-gradient(to_right,#a8a29e_1px,transparent_1px),linear-gradient(to_bottom,#a8a29e_1px,transparent_1px)]"></div>
 
-      <div class="hero-content relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center min-h-screen">
-          <div class="lg:col-span-3 space-y-6 text-center lg:text-left">
-            <TypingGreeting v-if="guestData" :guest-call="guestData.guest_call" />
-
-            <h1 ref="heroTitle" class="text-5xl sm:text-6xl md:text-7xl font-script text-spring-poppy leading-tight">
-              {{ t('hero.title') }}
-            </h1>
-
-            <div class="space-y-2">
-              <p class="text-2xl sm:text-3xl font-serif uppercase tracking-wide text-nimble" style="font-variant: small-caps;">
-                {{ t('hero.date') }}
-              </p>
-              <p class="text-xl sm:text-2xl font-serif italic text-nimble">
-                {{ t('hero.location') }}
-              </p>
-            </div>
-
-            <p ref="invitationText" class="text-lg sm:text-xl text-english-pear max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              {{ currentInvitationText }}
-            </p>
-
-            <Countdown v-if="weddingDate" :wedding-date="weddingDate" />
-
-            <RsvpPrimary
-              :current-state="rsvpState"
-              @accept="onAccept"
-              @reject="onReject"
-              @open-modal="onOpenModal"
-              @reveal-address="onRevealAddress"
-            />
-
-            <AddressReveal
-              :is-visible="showAddress"
-              :venue-address="venueAddress"
-            />
-
-            <FooterLinks
-              :vietnam-link-date="vietnamLinkDate"
-              :tickets-link-date="ticketsLinkDate"
-              :fly-from-country="flyFromCountry"
-              @vietnam-info="onVietnamInfo"
-              @tickets-info="onTicketsInfo"
-            />
-          </div>
-
-          <div class="lg:col-span-2">
-            <RotatingPortraits
-              v-if="portraits.length > 0"
-              :portraits="portraits"
-            />
+      <div class="flex flex-col items-center justify-center px-6 text-center">
+        <div class="mb-6 mt-10 sm:justify-center md:mb-4 md:mt-40">
+          <div v-if="guestData" class="relative flex items-center rounded-full border bg-popover px-3 py-1 text-xs text-primary/60">
+            <TypingGreeting :guest-call="guestData.guest_call" />
           </div>
         </div>
+
+        <div class="mx-auto max-w-5xl">
+          <div class="border-text-red-500 relative mx-auto h-full bg-background border py-12 p-6 [mask-image:radial-gradient(800rem_96rem_at_center,white,transparent)]">
+            <h1 class="flex flex-col text-center text-5xl font-semibold leading-none tracking-tight md:flex-col md:text-8xl lg:flex-row lg:text-8xl">
+              <Plus
+                :stroke-width="4"
+                class="text-red-500 absolute -left-5 -top-5 h-10 w-10"
+              />
+              <Plus
+                :stroke-width="4"
+                class="text-red-500 absolute -bottom-5 -left-5 h-10 w-10"
+              />
+              <Plus
+                :stroke-width="4"
+                class="text-red-500 absolute -right-5 -top-5 h-10 w-10"
+              />
+              <Plus
+                :stroke-width="4"
+                class="text-red-500 absolute -bottom-5 -right-5 h-10 w-10"
+              />
+              <span>
+                {{ t('hero.title') }} <span class="text-red-500">{{ t('hero.date') }}</span>
+              </span>
+            </h1>
+            <div class="flex items-center mt-4 justify-center gap-1">
+              <span class="relative flex h-3 w-3 items-center justify-center">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+              </span>
+              <p class="text-xs text-green-500">{{ t('hero.location') }}</p>
+            </div>
+          </div>
+
+          <h2 ref="invitationText" class="mt-8 text-2xl md:text-2xl">
+            {{ currentInvitationText }}
+          </h2>
+
+          <Countdown v-if="weddingDate" :wedding-date="weddingDate" />
+
+          <div class="flex flex-col md:flex-row items-center justify-center gap-2 mt-6">
+            <ShineBorder
+              v-if="rsvpState === 'initial'"
+              :border-width="3"
+              custom-class="border cursor-pointer h-auto w-auto p-2 bg-white/5 backdrop-blur-md dark:bg-black/5"
+              :color="['#FF007F', '#39FF14', '#00FFFF']"
+            >
+              <ConfettiButton
+                class="w-full rounded-xl"
+                @click="onAccept"
+              >
+                {{ t('rsvp.accept') || "I'll come" }}
+              </ConfettiButton>
+            </ShineBorder>
+
+            <Button
+              v-if="rsvpState === 'initial'"
+              class="rounded-xl"
+              variant="outline"
+              @click="onReject"
+            >
+              {{ t('rsvp.reject') || "Can't make it" }}
+            </Button>
+
+            <ShineBorder
+              v-if="rsvpState === 'morphed'"
+              :border-width="3"
+              custom-class="border cursor-pointer h-auto w-auto p-2 bg-white/5 backdrop-blur-md dark:bg-black/5"
+              :color="['#FF007F', '#39FF14', '#00FFFF']"
+            >
+              <Button
+                class="w-full rounded-xl"
+                @click="onOpenModal"
+              >
+                {{ t('rsvp.satisfy_curiosity') || "Satisfy my curiosity" }}
+              </Button>
+            </ShineBorder>
+
+            <Button
+              v-if="rsvpState === 'answered'"
+              class="rounded-xl"
+              @click="onRevealAddress"
+            >
+              {{ t('rsvp.reveal_address') || "Show venue address" }}
+            </Button>
+          </div>
+
+          <AddressReveal
+            :is-visible="showAddress"
+            :venue-address="venueAddress"
+          />
+
+          <FooterLinks
+            :vietnam-link-date="vietnamLinkDate"
+            :tickets-link-date="ticketsLinkDate"
+            :fly-from-country="flyFromCountry"
+            @vietnam-info="onVietnamInfo"
+            @tickets-info="onTicketsInfo"
+          />
+        </div>
       </div>
+
+      <AnimatedCanvas canvas-id="canvas" />
+    </section>
+
+    <div class="absolute inset-0 max-md:hidden -z-20">
+      <RotatingPortraits
+        v-if="portraits.length > 0"
+        :portraits="portraits"
+        class="absolute right-0 top-20 w-full md:w-1/3 lg:w-1/4"
+      />
     </div>
 
     <QuestionsModal
@@ -68,7 +126,7 @@
       @close="onCloseModal"
       @submit="onSubmitForm"
     />
-  </div>
+  </main>
 </template>
 
 <script setup>
@@ -77,13 +135,17 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { gsap } from 'gsap'
 import { TextPlugin } from 'gsap/TextPlugin'
+import { Plus } from 'lucide-vue-next'
 import TypingGreeting from '../components/TypingGreeting.vue'
 import RotatingPortraits from '../components/RotatingPortraits.vue'
 import Countdown from '../components/Countdown.vue'
-import RsvpPrimary from '../components/RsvpPrimary.vue'
 import QuestionsModal from '../components/QuestionsModal.vue'
 import FooterLinks from '../components/FooterLinks.vue'
 import AddressReveal from '../components/AddressReveal.vue'
+import Button from '../components/ui/Button.vue'
+import ShineBorder from '../components/ui/ShineBorder.vue'
+import ConfettiButton from '../components/ui/ConfettiButton.vue'
+import AnimatedCanvas from '../components/ui/AnimatedCanvas.vue'
 import { api } from '../services/api'
 import { tracker } from '../services/tracker'
 
@@ -108,15 +170,6 @@ const venueAddress = computed(() => settings.value['wedding.venue_address'] || '
 const vietnamLinkDate = computed(() => settings.value['links.available_from'])
 const ticketsLinkDate = computed(() => settings.value['links.tickets_available_from'])
 
-const heroBackgroundStyle = computed(() => {
-  const bgImage = media.value['hero-background-watercolor'] || '/assets/hero-background-watercolor.png'
-  return {
-    backgroundImage: `linear-gradient(to bottom, rgba(255,255,248,0.95), rgba(176,213,192,0.6)), url('${bgImage}')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center 30%',
-    backgroundAttachment: 'fixed'
-  }
-})
 
 const portraits = computed(() => {
   try {
@@ -158,19 +211,6 @@ const loadInviteData = async () => {
 const onAccept = async () => {
   try {
     await api.updateRsvp(route.params.inviteGuid, 'accept')
-
-    const secondaryBtn = document.querySelector('.rsvp-buttons-container button:nth-child(2)')
-    if (secondaryBtn) {
-      gsap.to(secondaryBtn, {
-        opacity: 0,
-        y: 20,
-        duration: 0.5,
-        onComplete: () => {
-          secondaryBtn.style.display = 'none'
-        }
-      })
-    }
-
     await new Promise(resolve => setTimeout(resolve, 300))
 
     if (invitationText.value) {
@@ -181,19 +221,7 @@ const onAccept = async () => {
       })
     }
     currentInvitationText.value = t('hero.after_accept')
-
-    const primaryBtn = document.getElementById('rsvp-action-btn')
-    if (primaryBtn) {
-      gsap.to(primaryBtn, {
-        backgroundColor: '#B0D5C0',
-        duration: 0.5,
-        onComplete: () => {
-          rsvpState.value = 'morphed'
-        }
-      })
-    } else {
-      rsvpState.value = 'morphed'
-    }
+    rsvpState.value = 'morphed'
   } catch (error) {
     console.error('Failed to update RSVP:', error)
   }
@@ -265,13 +293,14 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.hero-section {
-  position: relative;
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
-@media (max-width: 768px) {
-  .hero-section {
-    background-position: 50% 70% !important;
-  }
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 </style>
