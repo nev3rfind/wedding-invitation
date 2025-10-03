@@ -1,27 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import InvitePage from '../views/InvitePage.vue'
+import WeddingInvitation from '../views/WeddingInvitation.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
-import SetupPage from '../views/SetupPage.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'setup',
-    component: SetupPage
+    redirect: '/invitation/demo'
   },
   {
-    path: '/invite/:inviteGuid',
-    name: 'invite',
-    component: InvitePage
+    path: '/invitation/:code',
+    name: 'invitation',
+    component: WeddingInvitation
   },
   {
     path: '/admin',
     name: 'admin',
     component: AdminDashboard
-  },
-  {
-    path: '/setup',
-    redirect: '/'
   }
 ]
 

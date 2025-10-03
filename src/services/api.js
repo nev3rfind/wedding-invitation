@@ -1,155 +1,81 @@
 import { supabase } from './supabase'
 
 export const api = {
-  async getInvite(inviteGuid) {
+  async getGuest(invitationCode) {
     const { data: guest, error: guestError } = await supabase
-      .from('guest_invitations')
+      .from('guests')
       .select(`
         *,
-        fly_from_country:countries(country_code, country_name_en, country_name_lt),
-        status:invitation_status(name),
-        responses:guest_responses(*)
+        rsvp:rsvp_responses(*)
       `)
-      .eq('invite_guid', inviteGuid)
+      .eq('invitation_code', invitationCode)
       .maybeSingle()
 
     if (guestError) throw guestError
+    if (!guest) throw new Error('Guest not found')
 
-    const { data: settings } = await supabase
-      .from('settings')
-      .select('*')
-
-    const { data: media } = await supabase
-      .from('media')
-      .select('*')
-
-    const settingsMap = {}
-    settings?.forEach(s => {
-      settingsMap[s.key] = s.value
-    })
-
-    const mediaMap = {}
-    media?.forEach(m => {
-      mediaMap[m.key] = m.url
-    })
-
-    return {
-      guest,
-      settings: settingsMap,
-      media: mediaMap
-    }
+    return guest
   },
 
-  async updateRsvp(inviteGuid, answer) {
-    const statusMap = {
-      accept: 2,
-      reject: 3
-    }
-
-    const { data: guest } = await supabase
-      .from('guest_invitations')
-      .select('id')
-      .eq('invite_guid', inviteGuid)
-      .single()
-
-    const { data, error } = await supabase
-      .from('guest_invitations')
-      .update({
-        status_id: statusMap[answer],
-        updated_at: new Date().toISOString()
-      })
-      .eq('invite_guid', inviteGuid)
+  async updateAttending(invitationCode, attending) {
+    const { data: guest, error } = await supabase
+      .from('guests')
+      .update({ attending })
+      .eq('invitation_code', invitationCode)
       .select()
-      .single()
+      .maybeSingle()
 
     if (error) throw error
 
-    await this.trackActivity(inviteGuid, 'button_click', {
-      button: answer === 'accept' ? 'I\'ll come' : 'Unfortunately no'
-    })
+    if (guest) {
+      await this.trackInteraction(guest.id, 'button_click', {
+        button: attending ? "I'll come" : 'Not attending'
+      })
+    }
 
-    await this.trackActivity(inviteGuid, 'status_change', {
-      new_status: answer
-    })
-
-    return data
+    return guest
   },
 
-  async submitResponse(inviteGuid, formData) {
+  async submitResponse(invitationCode, formData) {
     const { data: guest } = await supabase
-      .from('guest_invitations')
+      .from('guests')
       .select('id')
-      .eq('invite_guid', inviteGuid)
-      .single()
+      .eq('invitation_code', invitationCode)
+      .maybeSingle()
 
     if (!guest) throw new Error('Guest not found')
 
     const { data, error } = await supabase
-      .from('guest_responses')
-      .insert({
+      .from('rsvp_responses')
+      .upsert({
         guest_id: guest.id,
-        days_in_vietnam: formData.days_in_vietnam,
-        flight_ticket_date: formData.flight_ticket_date,
-        days_before_wedding: formData.days_before_wedding,
-        coming_with: formData.coming_with,
+        ticket_purchase_date: formData.ticket_purchase_date,
+        has_plus_one: formData.has_plus_one,
+        days_staying: formData.days_staying,
+        additional_message: formData.additional_message
+      }, {
+        onConflict: 'guest_id'
       })
       .select()
-      .single()
+      .maybeSingle()
 
     if (error) throw error
 
-    await supabase
-      .from('guest_invitations')
-      .update({ status_id: 2 })
-      .eq('invite_guid', inviteGuid)
-
-    await this.trackActivity(inviteGuid, 'form_submit', {
+    await this.trackInteraction(guest.id, 'form_submit', {
       success: true
-    })
-
-    await this.trackActivity(inviteGuid, 'status_change', {
-      new_status: 'accepted'
     })
 
     return data
   },
 
-  async revealAddress(inviteGuid) {
-    await this.trackActivity(inviteGuid, 'address_reveal', {
-      timestamp: new Date().toISOString()
-    })
-
-    const { data } = await supabase
-      .from('settings')
-      .select('value')
-      .eq('key', 'wedding.venue_address')
-      .single()
-
-    return data?.value
-  },
-
-  async trackActivity(inviteGuid, activityType, extraData = {}) {
-    const { data: guest } = await supabase
-      .from('guest_invitations')
-      .select('id')
-      .eq('invite_guid', inviteGuid)
-      .maybeSingle()
-
-    const sessionId = sessionStorage.getItem('session_id')
-
+  async trackInteraction(guestId, interactionType, interactionData = {}) {
     await supabase
-      .from('guest_activities')
+      .from('user_interactions')
       .insert({
-        guest_id: guest?.id || null,
-        activity_type: activityType,
-        extra_data: extraData,
-        session_id: sessionId
+        guest_id: guestId,
+        interaction_type: interactionType,
+        interaction_data: interactionData
       })
   },
 
-  async batchTrackActivities(events) {
-    await supabase
-      .from('guest_activities')
-      .insert(events)
-  }
 }
