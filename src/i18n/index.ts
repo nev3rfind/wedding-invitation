@@ -1,0 +1,103 @@
+import { createI18n } from 'vue-i18n'
+
+const messages = {
+  EN: {
+    hero: {
+      title: 'Donatas & Trang Wedding',
+      date: '05-04-2026',
+      location: 'Hanoi, Vietnam',
+      saveTheDate: 'Save the Date',
+      invitation: 'we warmly invite you to our wedding in the land of lotus lakes and golden paddies.',
+      afterAccept: 'Wonderful! I cannot wait to see you in Vietnam 🌸🌿💍',
+      afterQuestions: 'Thank you for answering the questions, now it is really time to start planning your trip. Check the recommendations of what to do in Vietnam below.',
+      rejectMessage: 'I am sorry to hear that, if your plans change - drop me a message!',
+    },
+    buttons: {
+      illCome: "I'll come",
+      unfortunately: 'Unfortunately no',
+      questions: 'A few questions for you',
+      questionsAnswered: 'Questions answered :)',
+      revealAddress: 'Reveal venue address',
+    },
+    links: {
+      vietnamInfo: 'Click here to find out what is waiting for me in Viet Nam?',
+      ticketsInfo: 'When is the best time to buy tickets?',
+      availableAfter: 'Available after November 1st',
+      linkAvailableSoon: 'Link available soon',
+      flyingFrom: 'Flying from',
+    },
+    modal: {
+      title: 'A Few Questions for You',
+      ticketDate: 'When are you planning to buy tickets?',
+      plusOne: 'Will there be a plus one with you?',
+      daysStaying: 'How many days are you planning to stay in Vietnam?',
+      otherMessage: 'Any other message?',
+      yes: 'Yes',
+      no: 'No',
+      save: 'Save',
+      cancel: 'Cancel',
+      required: 'This field is required',
+      positiveNumber: 'Please enter a positive number',
+    },
+    countdown: {
+      months: 'Months',
+      days: 'Days',
+      hours: 'Hours',
+      minutes: 'Minutes',
+      seconds: 'Seconds',
+    },
+  },
+  LT: {
+    hero: {
+      title: 'Donato ir Trang Vestuvės',
+      date: '05-04-2026',
+      location: 'Hanojus, Vietnamas',
+      saveTheDate: 'Išsaugokite Datą',
+      invitation: 'šiltai kviečiame jus į mūsų vestuves lotosų ežerų ir auksinių ryžių laukų žemėje.',
+      afterAccept: 'Nuostabu! Negaliu sulaukti, kada tave pamatysiu Vietname 🌸🌿💍',
+      afterQuestions: 'Ačiū už atsakymus į klausimus, dabar tikrai laikas pradėti planuoti kelionę. Žemiau patikrink rekomendacijas, ką veikti Vietname.',
+      rejectMessage: 'Man liūdna tai girdėti, jei jūsų planai pasikeistų - parašykite man žinutę!',
+    },
+    buttons: {
+      illCome: 'Aš ateisiu',
+      unfortunately: 'Deja, ne',
+      questions: 'Čekleta klausimų tau',
+      questionsAnswered: 'Į klausimus atsakyta :)',
+      revealAddress: 'Atskleisti vietos adresą',
+    },
+    links: {
+      vietnamInfo: 'Spausk čia, kad sužinotum, kas tavęs laukia Vietname?',
+      ticketsInfo: 'Kada geriausia pirkti bilietus?',
+      availableAfter: 'Prieinama po lapkričio 1 d.',
+      linkAvailableSoon: 'Nuoroda greitai',
+      flyingFrom: 'Skrenda iš',
+    },
+    modal: {
+      title: 'Čekleta klausimų tau',
+      ticketDate: 'Kada planuoji pirkti bilietus?',
+      plusOne: 'Ar su savimi turėsi dar vieną žmogų?',
+      daysStaying: 'Kiek dienų planuoji likti Vietname?',
+      otherMessage: 'Ar turi dar kokių žinučių man?',
+      yes: 'Taip',
+      no: 'Ne',
+      save: 'Išsaugoti',
+      cancel: 'Atšaukti',
+      required: 'Šis laukas yra privalomas',
+      positiveNumber: 'Prašome įvesti teigiamą skaičių',
+    },
+    countdown: {
+      months: 'Mėnesiai',
+      days: 'Dienos',
+      hours: 'Valandos',
+      minutes: 'Minutės',
+      seconds: 'Sekundės',
+    },
+  },
+}
+
+export default createI18n({
+  legacy: false,
+  locale: 'EN',
+  fallbackLocale: 'EN',
+  messages,
+})

@@ -13,6 +13,7 @@ export default {
         'english-pear': '#B0D5C0',
         'nimble': '#989CA0',
         'gold-accent': '#E2C275',
+        'wedding-red': '#FF6B6B',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
