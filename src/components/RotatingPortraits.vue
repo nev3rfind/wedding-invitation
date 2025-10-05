@@ -1,81 +1,74 @@
 <template>
   <div
-    class="portrait-container relative w-full aspect-[3/4] overflow-hidden rounded-xl-soft"
+    class="portraits-container relative w-full h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-3xl shadow-2xl"
     @mouseenter="pauseRotation"
     @mouseleave="resumeRotation"
-    @focusin="pauseRotation"
-    @focusout="resumeRotation"
+    @focus="pauseRotation"
+    @blur="resumeRotation"
     tabindex="0"
     role="img"
     :aria-label="`Wedding portrait ${currentIndex + 1} of ${portraits.length}`"
   >
-    <img
-      ref="portraitImage"
-      :src="currentPortrait"
-      :alt="`Wedding portrait ${currentIndex + 1}`"
-      class="absolute inset-0 w-full h-full object-cover object-center"
-      loading="eager"
-    />
+    <div
+      v-for="(portrait, index) in portraits"
+      :key="index"
+      class="portrait-slide absolute inset-0 transition-opacity duration-1500"
+      :class="{ 'opacity-100 z-10': index === currentIndex, 'opacity-0 z-0': index !== currentIndex }"
+    >
+      <img
+        :src="portrait"
+        :alt="`Wedding portrait ${index + 1}`"
+        class="w-full h-full object-cover object-center-top"
+        loading="lazy"
+      />
+    </div>
+
+    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
+      <button
+        v-for="(_, index) in portraits"
+        :key="index"
+        @click="goToSlide(index)"
+        :class="[
+          'w-2 h-2 rounded-full transition-all duration-300',
+          index === currentIndex
+            ? 'bg-spring-poppy w-6'
+            : 'bg-white/50 hover:bg-white/75'
+        ]"
+        :aria-label="`Go to portrait ${index + 1}`"
+        :aria-current="index === currentIndex"
+      />
+    </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { gsap } from 'gsap'
-import { tracker } from '../services/tracker'
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { tracker } from '@/services/tracker'
 
-const props = defineProps({
-  portraits: {
-    type: Array,
-    required: true,
-    default: () => []
-  }
+interface RotatingPortraitsProps {
+  portraits: string[]
+  interval?: number
+}
+
+const props = withDefaults(defineProps<RotatingPortraitsProps>(), {
+  interval: 5000,
 })
 
-const portraitImage = ref(null)
 const currentIndex = ref(0)
 const isPaused = ref(false)
-let rotationInterval = null
+let intervalId: number | null = null
 
-const currentPortrait = computed(() => {
-  if (props.portraits.length === 0) return ''
-  return props.portraits[currentIndex.value]
-})
+const nextSlide = () => {
+  if (isPaused.value) return
 
-const prefersReducedMotion = computed(() => {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-})
+  currentIndex.value = (currentIndex.value + 1) % props.portraits.length
+  tracker.trackHeroImageChange(currentIndex.value)
+}
 
-const rotateToNext = () => {
-  if (isPaused.value || props.portraits.length <= 1) return
-
-  const nextIndex = (currentIndex.value + 1) % props.portraits.length
-
-  if (!prefersReducedMotion.value && portraitImage.value) {
-    gsap.timeline()
-      .to(portraitImage.value, {
-        opacity: 0,
-        scale: 1.05,
-        duration: 0.45,
-        ease: 'power2.in'
-      })
-      .call(() => {
-        currentIndex.value = nextIndex
-        tracker.trackImageChange(nextIndex)
-      })
-      .fromTo(portraitImage.value,
-        { opacity: 0, scale: 0.95 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.45,
-          ease: 'power2.out'
-        }
-      )
-  } else {
-    currentIndex.value = nextIndex
-    tracker.trackImageChange(nextIndex)
-  }
+const goToSlide = (index: number) => {
+  currentIndex.value = index
+  tracker.trackHeroImageChange(index)
+  resetInterval()
 }
 
 const pauseRotation = () => {
@@ -86,31 +79,53 @@ const resumeRotation = () => {
   isPaused.value = false
 }
 
-const preloadImages = () => {
-  props.portraits.forEach(src => {
-    const img = new Image()
-    img.src = src
-  })
+const resetInterval = () => {
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+  }
+  startRotation()
+}
+
+const startRotation = () => {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (prefersReducedMotion || props.portraits.length <= 1) return
+
+  intervalId = window.setInterval(nextSlide, props.interval)
 }
 
 onMounted(() => {
-  preloadImages()
-
-  rotationInterval = setInterval(() => {
-    rotateToNext()
-  }, 5000)
+  startRotation()
 })
 
 onUnmounted(() => {
-  if (rotationInterval) {
-    clearInterval(rotationInterval)
+  if (intervalId !== null) {
+    clearInterval(intervalId)
   }
 })
 </script>
 
 <style scoped>
-.portrait-container:focus {
-  outline: 2px solid #B0D5C0;
+.portraits-container {
+  aspect-ratio: 3 / 4;
+  max-width: 500px;
+}
+
+.portrait-slide {
+  transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.object-center-top {
+  object-position: center top;
+}
+
+.portraits-container:focus {
+  outline: 2px solid theme('colors.spring-poppy');
   outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-slide {
+    transition: none;
+  }
 }
 </style>

@@ -1,126 +1,184 @@
 <template>
-  <div class="rsvp-buttons-container flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+  <div class="rsvp-container flex flex-col items-center gap-4">
     <button
-      v-if="currentState === 'initial' || currentState === 'morphed'"
+      v-if="currentState === 'initial'"
       id="rsvp-action-btn"
-      ref="primaryButton"
-      @click="onPrimaryClick"
-      :disabled="currentState === 'answered'"
-      class="px-8 py-4 rounded-full text-lg sm:text-xl font-semibold transition-all duration-300 transform hover:scale-105 focus:scale-105 disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
-      :class="primaryButtonClasses"
+      @click="handleAccept"
+      class="btn-primary px-8 py-4 text-lg md:text-xl font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 focus:scale-105 focus:outline-none focus:ring-4 focus:ring-spring-poppy/50 bg-white text-green-600 border-4 border-green-500 hover:border-green-600 hover:shadow-xl relative overflow-hidden"
     >
-      {{ computedLabel }}
+      <span class="floral-corner top-left">🌹</span>
+      <span class="floral-corner top-right">🌿</span>
+      <span class="floral-corner bottom-left">🌿</span>
+      <span class="floral-corner bottom-right">🌹</span>
+      <span class="relative z-10">{{ t('buttons.illCome') }}</span>
     </button>
 
     <button
-      v-if="currentState === 'initial' && showSecondary"
-      @click="onRejectClick"
-      class="px-8 py-4 bg-nimble text-ivory-crepe rounded-full text-lg sm:text-xl font-semibold transition-all duration-300 transform hover:scale-105 focus:scale-105 min-w-[200px]"
+      v-if="currentState === 'accepted'"
+      id="rsvp-action-btn"
+      @click="handleOpenModal"
+      class="btn-primary px-8 py-4 text-lg md:text-xl font-semibold rounded-2xl shadow-lg transition-all duration-300 transform hover:scale-105 focus:scale-105 focus:outline-none focus:ring-4 focus:ring-english-pear/50 bg-gradient-to-r from-english-pear to-emerald-400 text-white hover:from-english-pear/90 hover:to-emerald-500 hover:shadow-xl"
     >
-      {{ t('hero.secondary_button') }}
+      {{ t('buttons.questions') }}
     </button>
 
     <button
-      v-if="currentState === 'answered'"
-      @click="onRevealAddress"
-      class="px-6 py-3 bg-gold-accent text-ivory-crepe rounded-full text-base sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 focus:scale-105"
+      v-if="currentState === 'completed'"
+      id="rsvp-action-btn"
+      disabled
+      class="btn-primary px-8 py-4 text-lg md:text-xl font-semibold rounded-2xl shadow-lg bg-nimble text-white cursor-not-allowed opacity-70"
     >
-      {{ t('hero.reveal_address') }}
+      {{ t('buttons.questionsAnswered') }}
     </button>
 
-    <div
-      v-if="showRejectMessage"
-      class="text-spring-poppy text-center text-lg sm:text-xl font-serif max-w-md"
+    <button
+      v-if="currentState === 'initial'"
+      @click="handleReject"
+      class="btn-secondary px-8 py-4 text-base md:text-lg font-medium rounded-2xl transition-all duration-300 transform hover:scale-105 focus:scale-105 focus:outline-none focus:ring-4 focus:ring-nimble/50 bg-nimble/20 text-gray-700 hover:bg-nimble/30"
     >
-      {{ t('hero.reject_message') }}
-    </div>
+      {{ t('buttons.unfortunately') }}
+    </button>
+
+    <transition name="fade-slide">
+      <div
+        v-if="showRejectMessage"
+        class="reject-message text-center max-w-md px-6 py-4 bg-rose-50 border-2 border-rose-200 rounded-xl"
+      >
+        <p class="text-lg text-rose-700 font-serif">
+          {{ t('hero.rejectMessage') }}
+        </p>
+      </div>
+    </transition>
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { gsap } from 'gsap'
 
-const props = defineProps({
-  currentState: {
-    type: String,
-    default: 'initial'
-  }
-})
+type RsvpState = 'initial' | 'accepted' | 'completed' | 'rejected'
 
-const emit = defineEmits(['accept', 'reject', 'openModal', 'revealAddress'])
-
-const { t } = useI18n()
-
-const primaryButton = ref(null)
-const showSecondary = ref(true)
-const showRejectMessage = ref(false)
-
-const computedLabel = computed(() => {
-  switch (props.currentState) {
-    case 'initial':
-      return t('hero.primary_button')
-    case 'morphed':
-      return t('hero.morphed_button')
-    case 'answered':
-      return t('hero.questions_answered')
-    default:
-      return t('hero.primary_button')
-  }
-})
-
-const primaryButtonClasses = computed(() => {
-  switch (props.currentState) {
-    case 'initial':
-      return 'bg-spring-poppy text-ivory-crepe'
-    case 'morphed':
-      return 'bg-english-pear text-ivory-crepe'
-    case 'answered':
-      return 'bg-nimble text-ivory-crepe'
-    default:
-      return 'bg-spring-poppy text-ivory-crepe'
-  }
-})
-
-const onPrimaryClick = () => {
-  if (props.currentState === 'initial') {
-    emit('accept')
-  } else if (props.currentState === 'morphed') {
-    emit('openModal')
-  }
+interface RsvpPrimaryProps {
+  initialState?: RsvpState
 }
 
-const onRejectClick = () => {
-  animateReject()
+const props = withDefaults(defineProps<RsvpPrimaryProps>(), {
+  initialState: 'initial',
+})
+
+const emit = defineEmits<{
+  accept: []
+  reject: []
+  openModal: []
+}>()
+
+const { t } = useI18n()
+const currentState = ref<RsvpState>(props.initialState)
+const showRejectMessage = ref(false)
+
+const handleAccept = () => {
+  currentState.value = 'accepted'
+  emit('accept')
+}
+
+const handleReject = () => {
+  currentState.value = 'rejected'
+  showRejectMessage.value = true
   emit('reject')
 }
 
-const animateReject = () => {
-  showSecondary.value = false
-  showRejectMessage.value = true
-
-  if (primaryButton.value) {
-    gsap.to(primaryButton.value, {
-      opacity: 0,
-      y: 20,
-      duration: 0.5,
-      onComplete: () => {
-        primaryButton.value.style.display = 'none'
-      }
-    })
-  }
-
-  const message = document.querySelector('.text-spring-poppy')
-  if (message) {
-    gsap.fromTo(message,
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.8 }
-    )
-  }
+const handleOpenModal = () => {
+  emit('openModal')
 }
 
-const onRevealAddress = () => {
-  emit('revealAddress')
+const setCompleted = () => {
+  currentState.value = 'completed'
 }
+
+defineExpose({
+  setCompleted,
+  currentState,
+})
 </script>
+
+<style scoped>
+.rsvp-container {
+  min-height: 120px;
+}
+
+.btn-primary,
+.btn-secondary {
+  min-width: 250px;
+  position: relative;
+}
+
+.floral-corner {
+  position: absolute;
+  font-size: 1.5rem;
+  pointer-events: none;
+  animation: float 3s ease-in-out infinite;
+}
+
+.top-left {
+  top: -8px;
+  left: -8px;
+}
+
+.top-right {
+  top: -8px;
+  right: -8px;
+}
+
+.bottom-left {
+  bottom: -8px;
+  left: -8px;
+}
+
+.bottom-right {
+  bottom: -8px;
+  right: -8px;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(5deg);
+  }
+}
+
+.btn-primary:hover .floral-corner {
+  animation: float 1.5s ease-in-out infinite;
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.5s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.reject-message {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+</style>
